@@ -12,21 +12,30 @@ import {
   GraduationCap,
   Briefcase,
   Code2,
-  Loader2
+  Loader2,
+  Check
 } from 'lucide-react';
 import { GithubIcon, LinkedinIcon } from './Icons';
+import { getAssetUrl, downloadFile } from '../utils/assets';
 
 export default function ResumeModal({ isOpen, onClose }) {
   if (!isOpen) return null;
 
-  const handleDownload = () => {
-    const link = document.createElement('a');
-    link.href = '/Saikamlesh_M_Resume.pdf';
-    link.download = 'Saikamlesh_M_Resume.pdf';
-    link.target = '_blank';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+  const [downloadState, setDownloadState] = useState('idle'); // 'idle' | 'downloading' | 'success'
+  const resumePdfUrl = getAssetUrl('Saikamlesh_M_Resume.pdf');
+
+  const handleDownload = async (e) => {
+    if (e) e.preventDefault();
+    if (downloadState === 'downloading') return;
+
+    setDownloadState('downloading');
+    const ok = await downloadFile('Saikamlesh_M_Resume.pdf', 'Saikamlesh_M_Resume.pdf');
+    if (ok) {
+      setDownloadState('success');
+      setTimeout(() => setDownloadState('idle'), 2500);
+    } else {
+      setDownloadState('idle');
+    }
   };
 
   const handlePrint = () => {
@@ -54,13 +63,42 @@ export default function ResumeModal({ isOpen, onClose }) {
           <div className="flex items-center gap-2">
             {/* Download PDF button */}
             <a
-              href="/Saikamlesh_M_Resume.pdf"
+              href={resumePdfUrl}
               download="Saikamlesh_M_Resume.pdf"
-              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-brand-600 hover:bg-brand-500 text-white text-xs font-semibold shadow-sm transition-all hover:scale-105 active:scale-95 cursor-pointer"
+              onClick={handleDownload}
+              className={`inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-semibold shadow-sm transition-all hover:scale-105 active:scale-95 cursor-pointer ${
+                downloadState === 'success' 
+                  ? 'bg-emerald-600 text-white' 
+                  : 'bg-brand-600 hover:bg-brand-500 text-white'
+              }`}
               title="Download official PDF resume directly"
             >
-              <Download className="w-3.5 h-3.5" />
-              <span>Download PDF</span>
+              {downloadState === 'downloading' ? (
+                <Loader2 className="w-3.5 h-3.5 animate-spin" />
+              ) : downloadState === 'success' ? (
+                <Check className="w-3.5 h-3.5" />
+              ) : (
+                <Download className="w-3.5 h-3.5" />
+              )}
+              <span>
+                {downloadState === 'downloading'
+                  ? 'Downloading...'
+                  : downloadState === 'success'
+                  ? 'Downloaded!'
+                  : 'Download PDF'}
+              </span>
+            </a>
+
+            {/* Open in new tab preview */}
+            <a
+              href={resumePdfUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-750 text-slate-200 text-xs font-semibold border border-slate-700 transition-colors cursor-pointer"
+              title="Open PDF directly in a new browser tab"
+            >
+              <ExternalLink className="w-3.5 h-3.5 text-accent-cyan" />
+              <span className="hidden sm:inline">Open in Tab</span>
             </a>
 
             {/* Print button */}
@@ -298,12 +336,29 @@ export default function ResumeModal({ isOpen, onClose }) {
             </button>
 
             <a
-              href="/Saikamlesh_M_Resume.pdf"
+              href={resumePdfUrl}
               download="Saikamlesh_M_Resume.pdf"
-              className="inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-xl bg-brand-600 hover:bg-brand-500 text-white font-semibold shadow-md shadow-brand-500/20 transition-all hover:scale-105 active:scale-95 cursor-pointer"
+              onClick={handleDownload}
+              className={`inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-xl text-white font-semibold shadow-md shadow-brand-500/20 transition-all hover:scale-105 active:scale-95 cursor-pointer ${
+                downloadState === 'success'
+                  ? 'bg-emerald-600'
+                  : 'bg-brand-600 hover:bg-brand-500'
+              }`}
             >
-              <Download className="w-3.5 h-3.5" />
-              <span>Download Official PDF</span>
+              {downloadState === 'downloading' ? (
+                <Loader2 className="w-3.5 h-3.5 animate-spin" />
+              ) : downloadState === 'success' ? (
+                <Check className="w-3.5 h-3.5" />
+              ) : (
+                <Download className="w-3.5 h-3.5" />
+              )}
+              <span>
+                {downloadState === 'downloading'
+                  ? 'Downloading...'
+                  : downloadState === 'success'
+                  ? 'Downloaded!'
+                  : 'Download Official PDF'}
+              </span>
             </a>
           </div>
         </div>

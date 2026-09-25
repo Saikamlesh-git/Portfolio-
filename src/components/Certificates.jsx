@@ -8,10 +8,11 @@ import {
   CheckCircle, 
   Flame, 
   Server, 
-  X,
-  FileCheck,
-  ShieldCheck
+  X, 
+  FileCheck, 
+  ShieldCheck 
 } from 'lucide-react';
+import { getAssetUrl } from '../utils/assets';
 
 export default function Certificates() {
   const [selectedCert, setSelectedCert] = useState(null);
@@ -184,7 +185,7 @@ export default function Certificates() {
               <div className="flex items-center gap-2">
                 {selectedCert.pdfUrl && (
                   <a
-                    href={selectedCert.pdfUrl}
+                    href={getAssetUrl(selectedCert.pdfUrl)}
                     target="_blank"
                     rel="noopener noreferrer"
                     download
